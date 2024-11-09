@@ -1,3 +1,4 @@
+```typescript
 import Tab from '@mdx/Tab.astro';
 import Tabs from '@mdx/Tabs.astro';
 import Callout from '@mdx/Callout.astro';
@@ -179,18 +180,18 @@ A `PRIMARY KEY` constraint automatically has a `UNIQUE` constraint.
       export const composite = pgTable('composite_example', {
         id: integer('id'),
         name: text('name'),
-      }, (t) => ({
-        unq: unique().on(t.id, t.name),
-        unq2: unique('custom_name').on(t.id, t.name)
-      }));
+      }, (t) => ([
+        unique().on(t.id, t.name),
+        unique('custom_name').on(t.id, t.name)
+      ]));
 
       // In Postgres 15.0+ NULLS NOT DISTINCT is available
       // This example demonstrates both available usages
       export const userNulls = pgTable('user_nulls_example', {
         id: integer('id').unique("custom_name", { nulls: 'not distinct' }),
-      }, (t) => ({
-        unq: unique().on(t.id).nullsNotDistinct()
-      }));
+      }, (t) => ([
+        unique().on(t.id).nullsNotDistinct()
+      ]));
       ```
 
       ```sql
@@ -236,10 +237,10 @@ A `PRIMARY KEY` constraint automatically has a `UNIQUE` constraint.
       export const composite = mysqlTable('composite_example', {
         id: int('id'),
         name: varchar('name', { length: 256 }),
-      }, (t) => ({
-        unq: unique().on(t.id, t.name),
-        unq2: unique('custom_name').on(t.id, t.name)
-      }));
+      }, (t) => ([
+        unique().on(t.id, t.name),
+        unique('custom_name').on(t.id, t.name)
+      ]));
       ```
 
       ```sql
@@ -279,10 +280,10 @@ A `PRIMARY KEY` constraint automatically has a `UNIQUE` constraint.
       export const composite = sqliteTable('composite_example', {
         id: int('id'),
         name: text('name'),
-      }, (t) => ({
-        unq: unique().on(t.id, t.name),
-        unq2: unique('custom_name').on(t.id, t.name)
-      }));
+      }, (t) => ([
+        unique().on(t.id, t.name),
+        unique('custom_name').on(t.id, t.name)
+      ]));
       ```
 
       ```sql
@@ -299,7 +300,9 @@ A `PRIMARY KEY` constraint automatically has a `UNIQUE` constraint.
       	`name` text
       );
 
-      CREATE UNIQUE INDEX `composite_example_id_name_unique` ON `composite_example` (`id`,`name`);
+      CREATE UNIQUE INDEX `composite_example_id_name_unique` ON `composite_example
+
+` (`id`,`name`);
       CREATE UNIQUE INDEX `custom_name` ON `composite_example` (`id`,`name`);
       CREATE UNIQUE INDEX `custom_name` ON `table` (`id`);
       CREATE UNIQUE INDEX `user_id_unique` ON `user` (`id`);
@@ -331,9 +334,9 @@ If you define a `CHECK` constraint on a table it can limit the values in certain
           username: text().notNull(),
           age: integer(),
         },
-        (table) => ({
-          checkConstraint: check("age_check1", sql`${table.age} > 21`),
-        })
+        (table) => [
+          check("age_check1", sql`${table.age} > 21`),
+        ]
       );
       ```
       ```sql
@@ -360,9 +363,9 @@ If you define a `CHECK` constraint on a table it can limit the values in certain
           username: text().notNull(),
           age: int(),
         },
-        (table) => ({
-          checkConstraint: check("age_check1", sql`${table.age} > 21`),
-        })
+        (table) => [
+          check("age_check1", sql`${table.age} > 21`),
+        ]
       );
       ```
       ```sql
@@ -389,9 +392,9 @@ If you define a `CHECK` constraint on a table it can limit the values in certain
           username: text().notNull(),
           age: int(),
         },
-        (table) => ({
-          checkConstraint: check("age_check1", sql`${table.age} > 21`),
-        })
+        (table) => [
+          check("age_check1", sql`${table.age} > 21`),
+        ]
       );
       ```
       ```sql
@@ -519,12 +522,10 @@ Drizzle ORM provides a standalone `primaryKey` operator for that:
       export const booksToAuthors = pgTable("books_to_authors", {
         authorId: integer("author_id"),
         bookId: integer("book_id"),
-      }, (table) => {
-        return {
-          pk: primaryKey({ columns: [table.bookId, table.authorId] }),
-          pkWithCustomName: primaryKey({ name: 'custom_name', columns: [table.bookId, table.authorId] }),
-        };
-      });
+      }, (table) => [
+        primaryKey({ columns: [table.bookId, table.authorId] }),
+        primaryKey({ name: 'custom_name', columns: [table.bookId, table.authorId] }),
+      ]);
       ```
 
       ```sql {6, 9}
@@ -559,12 +560,10 @@ Drizzle ORM provides a standalone `primaryKey` operator for that:
       export const booksToAuthors = mysqlTable("books_to_authors", {
         authorId: int("author_id"),
         bookId: int("book_id"),
-      }, (table) => {
-        return {
-          pk: primaryKey({ columns: [table.bookId, table.authorId] }),
-          pkWithCustomName: primaryKey({ name: 'custom_name', columns: [table.bookId, table.authorId] }),
-        };
-      });
+      }, (table) => [
+        primaryKey({ columns: [table.bookId, table.authorId] }),
+        primaryKey({ name: 'custom_name', columns: [table.bookId, table.authorId] }),
+      ]);
       ```
 
       ```sql {6}
@@ -597,12 +596,10 @@ Drizzle ORM provides a standalone `primaryKey` operator for that:
       export const bookToAuthor = sqliteTable("book_to_author", {
         authorId: integer("author_id"),
         bookId: integer("book_id"),
-      }, (table) => {
-        return {
-          pk: primaryKey({ columns: [table.bookId, table.authorId] }),
-          pkWithCustomName: primaryKey({ name: 'custom_name', columns: [table.bookId, table.authorId] }),
-        };
-      });
+      }, (table) => [
+        primaryKey({ columns: [table.bookId, table.authorId] }),
+        primaryKey({ name: 'custom_name', columns: [table.bookId, table.authorId] }),
+      ]);
       ```
       ```sql {6}
       ...
@@ -619,6 +616,8 @@ Drizzle ORM provides a standalone `primaryKey` operator for that:
 </Tabs>
 
 ### Foreign key
+
+
 
 The `FOREIGN KEY` constraint is used to prevent actions that would destroy links between tables.
 A `FOREIGN KEY` is a field (or collection of fields) in one table, that refers to the `PRIMARY KEY` in another table.
@@ -652,96 +651,27 @@ You can declare them in a column declaration statement:
     export const user = mysqlTable("user", {
       id: int("id").primaryKey().autoincrement(),
       name: text("name"),
+      parentId: integer("parent_id").references(() => user.id),
     });
 
-    export const book = mysqlTable("book", {
+    // or
+    export const user = mysqlTable("user", {
       id: int("id").primaryKey().autoincrement(),
       name: text("name"),
-      authorId: int("author_id").references(() => user.id)
-    });
+      parentId: integer("parent_id"),
+    }, (table) => [
+      foreignKey({
+        columns: [table.parentId],
+        foreignColumns: [table.id],
+        name: "custom_fk"
+      }),
+    ]);
     ```
 
   </Tab>
   <Tab>
     ```typescript {11}
     import { integer, text, sqliteTable } from "drizzle-orm/sqlite-core";
-
-    export const user = sqliteTable("user", {
-      id: integer("id").primaryKey({ autoIncrement: true }),
-      name: text("name"),
-    });
-
-    export const book = sqliteTable("book", {
-      id: integer("id").primaryKey({ autoIncrement: true }),
-      name: text("name"),
-      authorId: integer("author_id").references(() => user.id)
-    });
-    ```
-
-  </Tab>
-</Tabs>
-
-If you want to do a self reference, due to a TypeScript limitations you will have to either explicitly
-set return type for reference callback or use a standalone `foreignKey` operator.
-
-<Tabs items={['PostgreSQL', 'MySQL', 'SQLite']}>
-  <Tab>
-    ```typescript copy {6,16-19}
-    import { serial, text, integer, foreignKey, pgTable, AnyPgColumn } from "drizzle-orm/pg-core";
-
-    export const user = pgTable("user", {
-      id: serial("id"),
-      name: text("name"),
-      parentId: integer("parent_id").references((): AnyPgColumn => user.id)
-    });
-
-    // or
-    export const user = pgTable("user", {
-      id: serial("id"),
-      name: text("name"),
-      parentId: integer("parent_id"),
-    }, (table) => {
-      return {
-        parentReference: foreignKey({
-          columns: [table.parentId],
-          foreignColumns: [table.id],
-          name: "custom_fk"
-        }),
-      };
-    });
-    ```
-
-  </Tab>
-  <Tab>
-    ```typescript {6,16-19}
-    import { int, text, foreignKey, AnyMySqlColumn, mysqlTable } from "drizzle-orm/mysql-core";
-
-    export const user = mysqlTable("user", {
-      id: int("id").primaryKey().autoincrement(),
-      name: text("name"),
-      parentId: int("parent_id").references((): AnyMySqlColumn => user.id),
-    });
-
-    // or
-    export const user = mysqlTable("user", {
-      id: int("id").primaryKey().autoincrement(),
-      name: text("name"),
-      parentId: int("parent_id")
-    }, (table) => {
-      return {
-        parentReference: foreignKey({
-          columns: [table.parentId],
-          foreignColumns: [table.id],
-          name: "custom_fk"
-        }),
-      };
-    });
-    ```
-
-  </Tab>
-  <Tab>
-    ```typescript {6,16-19}
-    import { integer, text, foreignKey, sqliteTable, AnySQLiteColumn } from "drizzle-orm/sqlite-core";
 
     export const user = sqliteTable("user", {
       id: integer("id").primaryKey({ autoIncrement: true }),
@@ -754,15 +684,13 @@ set return type for reference callback or use a standalone `foreignKey` operator
       id: integer("id").primaryKey({ autoIncrement: true }),
       name: text("name"),
       parentId: integer("parent_id"),
-    }, (table) => {
-      return {
-        parentReference: foreignKey({
-          columns: [table.parentId],
-          foreignColumns: [table.id],
-          name: "custom_fk"
-        }),
-      };
-    });
+    }, (table) => [
+      foreignKey({
+        columns: [table.parentId],
+        foreignColumns: [table.id],
+        name: "custom_fk"
+      }),
+    ]);
     ```
 
   </Tab>
@@ -776,25 +704,21 @@ To declare multicolumn foreign keys you can use a dedicated `foreignKey` operato
     export const user = pgTable("user", {
       firstName: text("firstName"),
       lastName: text("lastName"),
-    }, (table) => {
-      return {
-        pk: primaryKey({ columns: [table.firstName, table.lastName]}),
-      };
-    });
+    }, (table) => [
+      primaryKey({ columns: [table.firstName, table.lastName]}),
+    ]);
 
     export const profile = pgTable("profile", {
       id: serial("id").primaryKey(),
       userFirstName: text("user_first_name"),
       userLastName: text("user_last_name"),
-    }, (table) => {
-      return {
-        userReference: foreignKey({
-          columns: [table.userFirstName, table.userLastName],
-          foreignColumns: [user.firstName, user.lastName]
-          name: "custom_fk"
-        })
-      }
-    })
+    }, (table) => [
+      foreignKey({
+        columns: [table.userFirstName, table.userLastName],
+        foreignColumns: [user.firstName, user.lastName],
+        name: "custom_fk"
+      })
+    ])
     ```
 
   </Tab>
@@ -805,54 +729,46 @@ To declare multicolumn foreign keys you can use a dedicated `foreignKey` operato
     export const user = mysqlTable("user", {
       firstName: text("firstName"),
       lastName: text("lastName"),
-    }, (table) => {
-      return {
-        pk: primaryKey({ columns: [table.firstName, table.lastName]}),
-      };
-    });
+    }, (table) => [
+      primaryKey({ columns: [table.firstName, table.lastName]}),
+    ]);
 
     export const profile = mysqlTable("profile", {
       id: int("id").autoincrement().primaryKey(),
       userFirstName: text("user_first_name"),
       userLastName: text("user_last_name"),
-    }, (table) => {
-      return {
-        userReference: foreignKey({
-          columns: [table.userFirstName, table.userLastName],
-          foreignColumns: [user.firstName, user.lastName],
-          name: "custom_name"
-        })
-      }
-    });
+    }, (table) => [
+      foreignKey({
+        columns: [table.userFirstName, table.userLastName],
+        foreignColumns: [user.firstName, user.lastName],
+        name: "custom_name"
+      })
+    ]);
     ```
 
   </Tab>
   <Tab>
-    ```typescript {4-5,14-15,18-21}
+    ```typescript copy {4-5,14-15,18-21}
     import { integer, text, primaryKey, foreignKey, sqliteTable, AnySQLiteColumn } from "drizzle-orm/sqlite-core";
 
     export const user = sqliteTable("user", {
       firstName: text("firstName"),
       lastName: text("lastName"),
-    }, (table) => {
-      return {
-        pk: primaryKey({ columns: [table.firstName, table.lastName]}),
-      };
-    });
+    }, (table) => [
+      primaryKey({ columns: [table.firstName, table.lastName]}),
+    ]);
 
     export const profile = sqliteTable("profile", {
       id: integer("id").primaryKey({ autoIncrement: true }),
       userFirstName: text("user_first_name"),
       userLastName: text("user_last_name"),
-    }, (table) => {
-      return {
-        userReference: foreignKey({
-          columns: [table.userFirstName, table.userLastName],
-          foreignColumns: [user.firstName, user.lastName],
-          name: "custom_name"
-        })
-      }
-    });
+    }, (table) => [
+      foreignKey({
+        columns: [table.userFirstName, table.userLastName],
+        foreignColumns: [user.firstName, user.lastName],
+        name: "custom_name"
+      })
+    ]);
     ```
 
   </Tab>
@@ -872,12 +788,10 @@ Drizzle ORM provides API for both `index` and `unique index` declaration:
       id: serial("id").primaryKey(),
       name: text("name"),
       email: text("email"),
-    }, (table) => {
-      return {
-        nameIdx: index("name_idx").on(table.name),
-        emailIdx: uniqueIndex("email_idx").on(table.email),
-      };
-    });
+    }, (table) => [
+      index("name_idx").on(table.name),
+      uniqueIndex("email_idx").on(table.email),
+    ]);
     ```
     ```sql {5-6}
     CREATE TABLE "user" (
@@ -922,12 +836,10 @@ index('name')
       id: int("id").primaryKey().autoincrement(),
       name: text("name"),
       email: text("email"),
-    }, (table) => {
-      return {
-        nameIdx: index("name_idx").on(table.name),
-        emailIdx: uniqueIndex("email_idx").on(table.email),
-      };
-    });
+    }, (table) => [
+      index("name_idx").on(table.name),
+      uniqueIndex("email_idx").on(table.email),
+    ]);
     ```
     ```sql {5-6}
     CREATE TABLE `user` (
@@ -958,16 +870,16 @@ index('name')
     ```typescript {9-10}
     import { integer, text, index, uniqueIndex, sqliteTable } from "drizzle-orm/sqlite-core";
 
-    export const user = sqliteTable("user", {
+    export const user = sqliteTable
+
+("user", {
       id: integer("id").primaryKey({ autoIncrement: true }),
       name: text("name"),
       email: text("email"),
-    }, (table) => {
-      return {
-        nameIdx: index("name_idx").on(table.name),
-        emailIdx: uniqueIndex("email_idx").on(table.email),
-      };
-    });
+    }, (table) => [
+      index("name_idx").on(table.name),
+      uniqueIndex("email_idx").on(table.email),
+    ]);
     ```
     ```sql {5-6}
     CREATE TABLE `user` (
@@ -989,3 +901,4 @@ index('name')
     ```
   </Tab>
 </Tabs>
+```
